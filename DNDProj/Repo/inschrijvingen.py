@@ -71,7 +71,7 @@ def maakingschrijving(row):
     cursor = conn.cursor()
 
     # Insert data from the array into the table
-    cursor.execute("INSERT INTO Inschrijving (InschrijvingId, PersoonId, Voornaam, Achternaam, EventId, DMpref, Remarks, Datum, VorigeDM) VALUES (?, ?, ?, ?, ?, ?, ?, ?,?)", row)
+    cursor.execute("INSERT INTO Inschrijving (InschrijvingId, EventId, PersoonId, DMpref) VALUES (?, ?, ?, ?)", row)
 
     # Commit changes and close connection
     conn.commit()

@@ -90,14 +90,23 @@ def geefAllenamen():
         namen.append(deelnemer.naam)
     return namen
 
-def maakNieuweSpeler(info):
+def returnAllEmails():
+    emails = []
+    for deelnemer in geefAlleSpelers():
+        emails.append(deelnemer.email)
+    return emails
+
+def maakNieuweSpeler(FirstName,LastName,Email,BirthDay,Postcode):
     conn = sqlite3.connect(settings.DATABASE)
     cursor = conn.cursor()
 
 
 
     # Insert data from the array into the table
-    cursor.execute("INSERT INTO Deelnemer (PersoonId, Voornaam, Achternaam, Email, Geboortedatum, Postcode ) VALUES (?, ?, ?, ?, ?, ?)", info)
+    cursor.execute("INSERT INTO Deelnemer (Voornaam, Achternaam, Email, Geboortedatum, Postcode ) VALUES (?, ?, ?, ?, ?)",
+                   (FirstName,LastName,Email,BirthDay,Postcode)
+                   )
+
 
     # Commit changes and close connection
     conn.commit()
@@ -126,4 +135,23 @@ def getDeelnemerId(voor, achter):
 
     return rows[0][0]
 
+def getParticipantIdEmail(email):
+    conn = sqlite3.connect(settings.DATABASE)
 
+    cursor = conn.cursor()
+
+    # Select all rows from the table
+    cursor.execute("""
+                            SELECT PersoonId 
+                            FROM Deelnemer
+                            WHERE Email = ?;
+
+                        """, (email))
+
+    # Fetch all rows
+    rows = cursor.fetchall()
+
+    # Close the connection
+    conn.close()
+
+    return rows[0][0]
