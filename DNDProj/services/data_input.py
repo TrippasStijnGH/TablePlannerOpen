@@ -24,32 +24,28 @@ def leesInschrijvingenDoc():
 
     excel_file = pd.read_excel(excel)
 
-    eventCode = os.path.splitext(excel)[0]
+    eventCode = os.path.splitext(os.path.basename(excel))[0]
 
+    # kijkt of er al inschrijvingen zijn met deze eventId en verwijdert ze allemaal
+    testEnverwijders(eventCode)
 
+    # Go through the data and create new participants and registrations
     for _, row in excel_file.iterrows():
 
-        createNewParticipant(row['FirstName'],row['LastName'],row['email'],row['BirthDate'].strftime('%Y-%m-%d'),row['Postcode'])
+        createNewParticipant(row['FirstName'],row['LastName'],row['Email'],row['BirthDate'].strftime('%Y-%m-%d'),row['Postcode'])
 
-        ParticId = Rdeelnemers.getDeelnemerId(row['email'])
+        ParticId = Rdeelnemers.getParticipantIdByEmail(row['Email'])
 
         DM = row['DMPreference']
 
         if isinstance(DM, str) and DM != "No preference":
             voor, achter = DM.split(maxsplit=1)
-
+            voor = voor.strip()
+            achter = achter.strip()
             DMprefId = RDMs.getDMId(voor, achter)
 
-        inschrijvinginfo = [eventCode, ParticId, inschrijving[2], inschrijving[3], DMprefId]
 
         Rinschrijvingen.maakingschrijving(eventCode, ParticId, DMprefId)
-
-    #kijkt of er al inschrijvingen zijn met deze eventId en verwijdert ze allemaal
-    testEnverwijders(eventCode)
-
-
-
-
 
 
 
@@ -58,7 +54,7 @@ def leesInschrijvingenDoc():
 
 def createNewParticipant(first_name, last_name, email, date_birth, postcode=None):
 
-    if not knownEmail(email):
+    if not Rdeelnemers.knownEmail(email):
 
         Rdeelnemers.maakNieuweSpeler(first_name,last_name,email,date_birth,postcode)
 
@@ -66,11 +62,7 @@ def createNewParticipant(first_name, last_name, email, date_birth, postcode=None
 
 
 
-def knownEmail(email):
-    result = False
-    if email in Rdeelnemers.returnAllEmails():
-        return True
-    return result
+
 
 def naamgekend(naam):
     result = False
@@ -82,35 +74,7 @@ def naamgekend(naam):
 
 
 
-def maaknieuweDM(naam):
-    if naam.find(" ") == -1:
 
-        voor = naam
-        achter = "x"
-    else:
-
-        voor, achter = naam.split(maxsplit=1)
-
-    fullname = voor + " " + achter
-
-    if not DMgekend(fullname):
-        info = ["",voor,achter,"","","", 7]
-        info[0] = len(RDMs.geefDMs()) + 1
-
-        RDMs.maakNieuweDM(info)
-
-
-
-
-def DMgekend(naam):
-
-    result = False
-    if naam in RDMs.geefDMnamen():
-
-        return True
-    return result
-
-### PreviousDM functios
 
 
 
@@ -119,9 +83,6 @@ def DMgekend(naam):
 def inschrijvinggekend(id,code):
     return Rinschrijvingen.zoekInschrijving(id,code)
 
-def maakNewInschrijving(info):
-    if inschrijvinggekend():
-        print("hi")
 
 
 def filterToString(value):
@@ -130,14 +91,10 @@ def filterToString(value):
         terug = value
     return terug
 
-def vorigeDM(mainwaarde,repeatwaarde,repeat):
-    if repeat == "ja":
-        return filterToString(mainwaarde)
-    else:
-        return filterToString(repeatwaarde)
+
 
 def testEnverwijders(eventId):
-     Rinschrijvingen.verwijderInschrijvingen(id)
+     Rinschrijvingen.verwijderInschrijvingen(eventId)
 
 
 

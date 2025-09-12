@@ -85,27 +85,19 @@ def maakNieuweDM(info):
     conn.close()
 
 def getDMId(voor, achter):
-
-
     conn = sqlite3.connect(settings.DATABASE)
-
     cursor = conn.cursor()
 
-    # Select all rows from the table
     cursor.execute("""
-                        SELECT PersoonId 
-                        FROM DM
-                        WHERE Voornaam = ? AND Achternaam = ?;
+        SELECT PersoonId 
+        FROM DM
+        WHERE Voornaam = ? AND Achternaam = ?;
+    """, (voor, achter))
 
-                    """,(voor,achter))
-
-    # Fetch all rows
-    rows = cursor.fetchall()
-
-    # Close the connection
+    result = cursor.fetchone()
     conn.close()
 
-    return rows[0][0]
+    return result[0] if result else None
 
 def maakDMobject(row):
     naam = row[1] + " " + row[2]

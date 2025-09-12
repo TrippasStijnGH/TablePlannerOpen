@@ -36,6 +36,23 @@ def geefAlleSpelers():
     return deelnemer_objects
 
 
+def knownEmail(email):
+    conn = sqlite3.connect(settings.DATABASE)
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT 1 
+        FROM Deelnemer 
+        WHERE Email = ? 
+        LIMIT 1;
+    """, (email,))
+
+    result = cursor.fetchone()
+    conn.close()
+
+    return result is not None
+
+
 
 
 def geefSpelers(idlijst):
@@ -52,7 +69,7 @@ def geefSpelers(idlijst):
         cursor.execute("""
                 SELECT Deelnemer.* 
                 FROM Deelnemer
-                
+
                 WHERE Deelnemer.PersoonId = ?
             """, (id,))
 
@@ -63,7 +80,6 @@ def geefSpelers(idlijst):
         conn.close()
 
         lijstmensen.append(rows[0])
-
 
     for row in lijstmensen:
         # Combine the third and fourth values to make "naam"
@@ -76,6 +92,7 @@ def geefSpelers(idlijst):
         deelnemer_objects.append(deelnemer)
 
     return deelnemer_objects
+
 
 
 def geefnamen(lijst):
@@ -135,23 +152,20 @@ def getDeelnemerId(voor, achter):
 
     return rows[0][0]
 
-def getParticipantIdEmail(email):
+def getParticipantIdByEmail(email):
     conn = sqlite3.connect(settings.DATABASE)
-
     cursor = conn.cursor()
 
-    # Select all rows from the table
     cursor.execute("""
-                            SELECT PersoonId 
-                            FROM Deelnemer
-                            WHERE Email = ?;
+        SELECT PersoonId 
+        FROM Deelnemer
+        WHERE Email = ?;
+    """, (email,))  # Note the comma after email to make it a tuple
 
-                        """, (email))
-
-    # Fetch all rows
     rows = cursor.fetchall()
-
-    # Close the connection
     conn.close()
 
-    return rows[0][0]
+    if rows:  # Check if any rows were found
+        return rows[0][0]
+    else:
+        return None

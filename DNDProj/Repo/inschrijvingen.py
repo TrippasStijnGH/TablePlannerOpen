@@ -66,12 +66,13 @@ def geefInschrijvingenEvent (eventid):
 
 
 
-def maakingschrijving(row):
+def maakingschrijving(eventCode, ParticId, DMprefId = 0):
     conn = sqlite3.connect(settings.DATABASE)
     cursor = conn.cursor()
 
     # Insert data from the array into the table
-    cursor.execute("INSERT INTO Inschrijving (InschrijvingId, EventId, PersoonId, DMpref) VALUES (?, ?, ?, ?)", row)
+    cursor.execute("INSERT INTO Inschrijving (EventId, PersoonId, DMpref) VALUES (?, ?, ?)",
+                   (eventCode, ParticId, DMprefId))
 
     # Commit changes and close connection
     conn.commit()
