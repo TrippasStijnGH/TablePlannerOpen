@@ -10,7 +10,7 @@ def plantafelsAlfa(eventId):
     groeplijst = Rgroepen.maakGroepen()[0]
     groepmembers = list(map(lambda x: x[1], groeplijst))
     tafelobjecten, remainingwolfs = p1.planTafels(eventId)
-
+    j = 1
     tafels = []
     if len(remainingwolfs) > 0:
         message = []
@@ -18,7 +18,7 @@ def plantafelsAlfa(eventId):
         message.append("Teweinig plaatsen!")
         message.append("Onderstaande spelers zijn niet toegekent")
         for wolf in remainingwolfs:
-            message.append(wolf.naam)
+            message.append(wolf.name)
         tafels.append(message)
 
     for tafelObj in tafelobjecten:
@@ -27,13 +27,13 @@ def plantafelsAlfa(eventId):
 
         tafel.append(f"__{tafelObj.maxAantal + 1}__   >>>Tafel: {tafelObj.tafelnummer} <<<")
 
-        tafel.append(f"<{i}> > {tafelObj.dmName}")
+        tafel.append(f"<{i}> > {tafelObj.dmName} {tafelObj.dm}")
         i += 1
 
         for inschrijving in tafelObj.deelnemers:
             groepnummer = 0
-            if inschrijving.naam in groepmembers:
-                groepnummer = lookupgroepnummer[inschrijving.naam]
+            if inschrijving.name in groepmembers:
+                groepnummer = lookupgroepnummer[inschrijving.name]
             happy = ":)"
 
             if inschrijving.dm != tafelObj.dmName:
@@ -41,8 +41,9 @@ def plantafelsAlfa(eventId):
             if inschrijving.dm == "No preference":
                 happy = "NP"
 
-            tinput = f"<{i}> o {groepnummer} {happy} {inschrijving.naam}"
+            tinput = f"<{i}> o {groepnummer} {j} {happy} {inschrijving.name}"
             i += 1
+            j += 1
             tafel.append(tinput)
 
         for legePlaats in range(tafelObj.maxAantal - len(tafelObj.deelnemers)):
@@ -74,7 +75,7 @@ def toExcel(eventId):
     for tafel in tafelobjecten:
         output.append(tafel.dmName)
         for inschrijving in tafel.deelnemers:
-            output.append(inschrijving.naam)
+            output.append(inschrijving.name)
         output.append(" ")
 
     df = pd.DataFrame(output, columns=["Planning"])

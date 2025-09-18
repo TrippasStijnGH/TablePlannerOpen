@@ -6,12 +6,13 @@ import Classes.tafelobjects as Tobs
 
 
 def planTafels(eventId):
-    DMLWs = []
-    NPLWs = []
 
-    Tobjects = Rtafels.maakTafels(eventId)
+    Tobjects = Rtafels.maakTafels(eventId) #returns objects for the available tables
 
     DMgroepen, RejectedClusters, AllLW = vulDMgroepenclusters(eventId)
+
+    DMLWs = []   #LoneWolfs with DM preference
+    NPLWs = []   #LoneWolfs with no preference
 
     for wolf in AllLW:
         if wolf.dm == 'No preference':
@@ -38,6 +39,7 @@ def planTafels(eventId):
             DMgroep = DMgroepen[i]
             # zet de DM bij deze tafel
             Tobject.dmName = DMgroep.naam
+            Tobject.dm = DMgroep.id
             Tobject.dmMaxAantal = DMgroep.maxspelers_start
             # als het er allemaal in past steek het allemaal in
             if Tobject.maxAantal <= DMgroep.maxspelers_start - DMgroep.maxspelers:
@@ -57,7 +59,7 @@ def planTafels(eventId):
                     else:
                         RejectedClusters.append(cluster[0])
             # de DM heeft nog plaats en de tafel heeft nog plaats
-            # de wolf word bij DM geplaatst of hij word bij de NPLW gezet
+            # de wolf word bij DM geplaatst of hij wordt bij de NPLW gezet
             for wolf in DMgroep.DMlonewolf_buidel:
                 if Tobject.dmMaxAantal > 0 and Tobject.maxAantal - Tobject.deelnemeraantal > 0:
                     Tobject.deelnemers.append(wolf)
@@ -83,27 +85,88 @@ def planTafels(eventId):
 
     Tobjects = TobjectsmetDM
 
+
+
+
+
+    #new
+    #this loop checks if any tables have been assigned earlier players but haven't reached the 3 player minimum
+
+    Tobjects = sorted(Tobjects, key=lambda Tobject: len(Tobject.deelnemers))
+
+    for tafel in Tobjects:
+
+        if len(tafel.deelnemers) > 2:
+
+            break
+
+        # The next loop will look to append a cluster from rejectedcluster
+        # if it rejects it because it is too big for this table it will pop it and then put it back for the next table
+        RejectedClusters2 = []
+
+        # first it checks if any clusters can be added
+        if 1 < len(tafel.deelnemers) < 3:
+            while len(tafel.deelnemers) < 3 and len(RejectedClusters) > 0:
+                    if tafel.maxAantal - len(tafel.deelnemers) >= len(RejectedClusters[0]) and tafel.dmMaxAantal - len(tafel.deelnemers) >= len(RejectedClusters[0]):
+                        for inschrijving in RejectedClusters[0]:
+                            tafel.deelnemers.append(inschrijving)
+                            tafel.dmMaxAantal -= 1
+                        RejectedClusters.pop(0)
+                    #here it gets rid of the Rejected cluster that doenst fit this table and puts it aside until we hit the next table
+                    else:
+                        RejectedClusters2.append(RejectedClusters.pop(0))
+
+
+        # secondly it checks if any LW can be added
+        if 1 < len(tafel.deelnemers) < 3:
+            while len(tafel.deelnemers) < 3 and len(NPLWs)>0:
+
+                tafel.deelnemers.append(NPLWs.pop(0))
+                tafel.dmMaxAantal -= 1
+
+        #Adds the ignored clusters back
+        RejectedClusters.extend(RejectedClusters2)
+
+
+
+
+
+
+
     Tobjects = sorted(Tobjects, key=lambda Tobject: len(Tobject.deelnemers), reverse=False)
 
-    i = 0
+
+
+
+
+
     for cluster in RejectedClusters:
+
+        i = 0
         # kan de hele cluster in de remaining plaatsen van de tafel met de meeste plaatsen, if not steek erzoveel in en ga door
-        if Tobjects[i].maxAantal - len(Tobjects[i].deelnemers) >= len(cluster) and Tobjects[i].dmMaxAantal - len(Tobjects[i].deelnemers) >= len(cluster):
+        if Tobjects[0].maxAantal - len(Tobjects[0].deelnemers) >= len(cluster) and Tobjects[0].dmMaxAantal - len(Tobjects[0].deelnemers) >= len(cluster):
+
             for inschrijving in cluster:
-                Tobjects[i].deelnemers.append(inschrijving)
-                Tobjects[i].dmMaxAantal -= 1
+                Tobjects[0].deelnemers.append(inschrijving)
+                Tobjects[0].dmMaxAantal -= 1
+                Tobjects = sorted(Tobjects, key=lambda Tobject: len(Tobject.deelnemers), reverse=False)
+
+
+
         # zo niet ga probeer dan zoveel mogelijk inschrijvingen in de tafel te steken
+
         else:
             for inschrijving in cluster:
                 # zit er nog iets in de cluster
                 if len(cluster) == 0:
                     break
                 # is er nog een plaats aan de tafel, en overschrijd het de DMlimiet niet
-                if Tobjects[i].maxAantal > len(Tobjects[i].deelnemers) and Tobjects[i].dmMaxAantal > 0:
-                    Tobjects[i].deelnemers.append(inschrijving)
-                    Tobjects[i].dmMaxAantal -= 1
+                if Tobjects[0].maxAantal > len(Tobjects[i].deelnemers) and Tobjects[i].dmMaxAantal > 0:
+                    Tobjects[0].deelnemers.append(inschrijving)
+                    Tobjects[0].dmMaxAantal -= 1
+                    Tobjects = sorted(Tobjects, key=lambda Tobject: len(Tobject.deelnemers), reverse=False)
                 else:
-                    i += 1
+                    Tobjects = sorted(Tobjects, key=lambda Tobject: len(Tobject.deelnemers), reverse=False)
 
     # op het einde van deze loop:
     # hebben all tafels een DM
@@ -172,6 +235,9 @@ def verdeelLonewolfs(antwoord):
         NietsToegedient = False
         while len(lonewolfs) > 0 and not NietsToegedient:
             NietsToegedient = True
+
+
+
             for table in TerugSamenObjects:
                 if len(lonewolfs) > 0:
                     if len(table.deelnemers) == minstaantaldeelnemers:
@@ -267,11 +333,11 @@ def maakClusters(eventId):
     namenInschrijvingen = []
 
     for inschrijving in inschrijvingen:
-        namenInschrijvingen.append(inschrijving.naam)
+        namenInschrijvingen.append(inschrijving.name)
 
     lookupInschrijving = {}
     for inschrijving in inschrijvingen:
-        lookupInschrijving[inschrijving.naam] = inschrijving
+        lookupInschrijving[inschrijving.name] = inschrijving
 
     # groeplijst is gewoon de excel met namen van groepleden
     groeplijst = antwoord[0]
@@ -285,7 +351,7 @@ def maakClusters(eventId):
 
     for inschrijving in inschrijvingen:
         cluster = []
-        naam = inschrijving.naam
+        naam = inschrijving.name
 
         if naam in namenInschrijvingen:
             if naam in namenGroeplijst:
@@ -321,10 +387,11 @@ def ClustersRanked(Clusters):
     for cluster in Clusters:
         DMCounts = {}
         for inschrijving in cluster:
-            if inschrijving.dm in DMCounts and inschrijving.dm != "No preference":
-                DMCounts[inschrijving.dm] += 1
-            else:
-                DMCounts[inschrijving.dm] = 1
+            if inschrijving.dm != "No preference":
+                if inschrijving.dm in DMCounts:
+                    DMCounts[inschrijving.dm] += 1
+                else:
+                    DMCounts[inschrijving.dm] = 1
         ###bugfix Als DM no preferecen is mag niet meegeteld worden
         sorted_DMs = sorted(DMCounts.items(), key=lambda item: item[1], reverse=True)[:3]
 

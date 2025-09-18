@@ -38,6 +38,10 @@ def leesInschrijvingenDoc():
 
         DM = row['DMPreference']
 
+        DMprefId = 0
+
+        Notes = row['Notes']
+
         if isinstance(DM, str) and DM != "No preference":
             voor, achter = DM.split(maxsplit=1)
             voor = voor.strip()
@@ -45,7 +49,7 @@ def leesInschrijvingenDoc():
             DMprefId = RDMs.getDMId(voor, achter)
 
 
-        Rinschrijvingen.maakingschrijving(eventCode, ParticId, DMprefId)
+        Rinschrijvingen.maakingschrijving(eventCode, ParticId, DMprefId, Notes)
 
 
 

@@ -20,7 +20,7 @@ def maakUpcomingEvents():
     cursor = conn.cursor()
 
     # Select all rows from the table
-    cursor.execute("SELECT eventId, NaamEvent, Datum, Plaats, Main  FROM Event")
+    cursor.execute("SELECT eventId, NaamEvent, Datum, Plaats  FROM Event")
 
 
     # Fetch all rows
