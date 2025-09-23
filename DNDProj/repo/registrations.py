@@ -4,14 +4,14 @@ import math
 
 import settings
 
-import Classes.inschrijvingobjects as Iobs
+import classes.registration_objects as reg_obs
 
-import Repo.deelnemers as Rdeelnemers
+import repo.participants as Rdeelnemers
 
 import pandas as pd
 
 # Haalt inschrijvingen, gelinkt aan een eventid, uit de databank en returned ze als een lijst InschrijvingObjects
-def geefInschrijvingenEvent (eventid):
+def return_registrations_event(event_id):
 
     conn = sqlite3.connect(settings.DATABASE)
 
@@ -20,16 +20,16 @@ def geefInschrijvingenEvent (eventid):
     # Select all rows from the table
     cursor.execute("""
         SELECT
-        Inschrijving.PersoonId,
-        Deelnemer.Voornaam, 
-        Deelnemer.Achternaam,   
-        DM.voornaam, 
-        DM.achternaam
-        FROM Inschrijving
-        JOIN DM ON Inschrijving.DMpref = DM.PersoonId
-        JOIN Deelnemer ON Inschrijving.PersoonId = Deelnemer.PersoonId
-        WHERE Inschrijving.EventId = ?
-    """,(eventid,))
+        Registration.participant_id,
+        Deelnemer.first_name, 
+        Deelnemer.last_name,   
+        DM.first_name, 
+        DM.last_name
+        FROM Registration
+        JOIN DM ON Registration.pref_DM_id = DM.id
+        JOIN Participant ON Registration.Participant_id = Participant.id
+        WHERE registartion.event_id = ?
+    """, (event_id,))
 
     # Fetch all rows
     rows = cursor.fetchall()
@@ -37,30 +37,30 @@ def geefInschrijvingenEvent (eventid):
     # Close the connection
     conn.close()
 
-    inschrijving_objects = []
+    registration_objects = []
 
     for row in rows:
 
         participant_id = row[0]
 
         # Combine the third and fourth values to make "naam"
-        naam = row[1] + " " + row[2]
+        name = row[1] + " " + row[2]
 
         # Combine the last two values to make "dm"
-        dm = row[3] + " " + row[4]
+        DM = row[3] + " " + row[4]
 
 
         # Create Inschrijving object
-        inschrijving = Iobs.Inschrijving(participant_id, naam, dm)
+        registration = reg_obs.Registration(participant_id, name, DM)
 
         # Append Inschrijving object to the list
-        inschrijving_objects.append(inschrijving)
+        registration_objects.append(registration)
 
 
-    return inschrijving_objects
+    return registration_objects
 
 
-def returnRegistrationDP(eventid):
+def return_registration_DP(event_id):
     conn = sqlite3.connect(settings.DATABASE)
 
     cursor = conn.cursor()
@@ -68,17 +68,17 @@ def returnRegistrationDP(eventid):
     # Select all rows from the table
     cursor.execute("""
             SELECT
-            Deelnemer.Voornaam, 
-            Deelnemer.Achternaam, 
-            Deelnemer.Email,  
-            DM.voornaam, 
-            DM.achternaam,
+            participant.first_name, 
+            participant.last_name, 
+            participant_email,  
+            DM.first_name, 
+            DM.last_name,
             Notes
-            FROM Inschrijving
-            JOIN DM ON Inschrijving.DMpref = DM.PersoonId
-            JOIN Deelnemer ON Inschrijving.PersoonId = Deelnemer.PersoonId
-            WHERE Inschrijving.EventId = ?
-        """, (eventid,))
+            FROM Registration
+            JOIN DM ON Registration.pref_DM_id = DM.id
+            JOIN Participant ON Registration.participant_id = participant.id
+            WHERE Registration.event_id = ?
+        """, (event_id,))
 
     # Fetch all rows
     rows = cursor.fetchall()
@@ -86,7 +86,7 @@ def returnRegistrationDP(eventid):
     # Close the connection
     conn.close()
 
-    inschrijving_objects = []
+    registration_objects = []
 
     for row in rows:
 
@@ -99,12 +99,12 @@ def returnRegistrationDP(eventid):
         notes = row[5]
 
         # Create Inschrijving object
-        inschrijving = Iobs.registrationDP(name, email, dm, notes)
+        registration = reg_obs.RegistrationDP(name, email, dm, notes)
 
         # Append Inschrijving object to the list
-        inschrijving_objects.append(inschrijving)
+        registration_objects.append(registration)
 
-    return inschrijving_objects
+    return registration_objects
 
 
     # Print the array of values for each row

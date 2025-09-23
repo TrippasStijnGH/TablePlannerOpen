@@ -5,21 +5,21 @@ import os
 
 import settings
 
-import Repo.inschrijvingen as Rinschrijvingen
+import repo.registrations as Rinschrijvingen
 
-import Classes.inschrijvingobjects as Iobs
+import classes.registration_objects as Iobs
 
-import Repo.deelnemers as Rdeelnemers
+import repo.participants as Rdeelnemers
 
-import Repo.events as Revents
+import repo.events as Revents
 
-import Repo.DMs as RDMs
+import repo.DMs as RDMs
 
 import pandas as pd
 
 def leesInschrijvingenDoc():
 
-    excel = settings.EXCELINSCHRIJVINGEN
+    excel = settings.EXCEL_REGISTRATIONS
 
 
     excel_file = pd.read_excel(excel)
@@ -34,7 +34,7 @@ def leesInschrijvingenDoc():
 
         createNewParticipant(row['FirstName'],row['LastName'],row['Email'],row['BirthDate'].strftime('%Y-%m-%d'),row['Postcode'])
 
-        ParticId = Rdeelnemers.getParticipantIdByEmail(row['Email'])
+        ParticId = Rdeelnemers.get_participant_id_by_email(row['Email'])
 
         DM = row['DMPreference']
 
@@ -46,7 +46,7 @@ def leesInschrijvingenDoc():
             voor, achter = DM.split(maxsplit=1)
             voor = voor.strip()
             achter = achter.strip()
-            DMprefId = RDMs.getDMId(voor, achter)
+            DMprefId = RDMs.get_DM_id(voor, achter)
 
 
         Rinschrijvingen.maakingschrijving(eventCode, ParticId, DMprefId, Notes)
@@ -58,9 +58,9 @@ def leesInschrijvingenDoc():
 
 def createNewParticipant(first_name, last_name, email, date_birth, postcode=None):
 
-    if not Rdeelnemers.knownEmail(email):
+    if not Rdeelnemers.known_email(email):
 
-        Rdeelnemers.maakNieuweSpeler(first_name,last_name,email,date_birth,postcode)
+        Rdeelnemers.make_new_participant(first_name, last_name, email, date_birth, postcode)
 
 
 
@@ -70,7 +70,7 @@ def createNewParticipant(first_name, last_name, email, date_birth, postcode=None
 
 def naamgekend(naam):
     result = False
-    if naam in Rdeelnemers.geefAllenamen():
+    if naam in Rdeelnemers.return_all_names():
         return True
     return result
 

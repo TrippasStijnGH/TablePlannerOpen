@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-import Repo.events as REvents
-import Repo.inschrijvingen as RepoInschrijvingen
+import repo.events as REvents
+import repo.registrations as RepoInschrijvingen
 import services.Tafelplanner as Tplanner
 import services.data_input as DataInput
 
@@ -10,7 +10,7 @@ from tkinter import ttk
 
 # Haalt alle toekomstige evenementen uit de database en steekt ze in een listbox
 def populate_events():
-    EventObjects = REvents.maakUpcomingEvents()
+    EventObjects = REvents.make_upcoming_events()
 
     for item in EventObjects:
         listItem = f"{item.name} {item.date}"
@@ -18,14 +18,14 @@ def populate_events():
 
 # Haalt alle inschrijvingen op met het gekozen eventId en steekt ze in registration_ text
 def show_registrations(event):
-    EventObjects = REvents.maakUpcomingEvents()
+    EventObjects = REvents.make_upcoming_events()
     i = 0
 
     selected_index = events_listbox.curselection()
     if selected_index:
         eventInput = selected_index[0]
         chosenEventId = EventObjects[eventInput].id
-        lijstInschrijvingen = RepoInschrijvingen.returnRegistrationDP(chosenEventId)
+        lijstInschrijvingen = RepoInschrijvingen.return_registration_DP(chosenEventId)
 
         lijstInschrijvingen.sort(key=lambda obj: obj.participant)
 
@@ -34,12 +34,12 @@ def show_registrations(event):
         for item in lijstInschrijvingen:
             naam = item.participant
             email = item.email
-            dm = item.dm
+            dm = item.DM
             notes = item.notes if item.notes else ""
             registrations_text.insert(tk.END, f"Naam: {naam}\nEmail: {email}\nGekozen DM: {dm}\nNotes: {notes}\n___\n \n")
 
 def show_description():
-    EventObjects = REvents.maakUpcomingEvents()
+    EventObjects = REvents.make_upcoming_events()
 
     selected_index = events_listbox.curselection()
     if selected_index:
@@ -49,7 +49,7 @@ def show_description():
         description_text.insert(tk.END, Tplanner.plantafelsAlfa(selected_event))
 
 def naarExcel():
-    EventObjects = REvents.maakUpcomingEvents()
+    EventObjects = REvents.make_upcoming_events()
 
     selected_index = events_listbox.curselection()
     if selected_index:

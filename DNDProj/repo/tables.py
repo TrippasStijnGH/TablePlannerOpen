@@ -4,12 +4,12 @@ import settings
 
 import pandas as pd
 
-import Classes.tafelobjects as Tobs
+import classes.table_objects as Tobs
 
 
-def maakTafels(eventId):
+def make_tables(event_id):
 
-    excel = settings.EXCELBESCHIKBARETAFELS
+    excel = settings.EXCELAVAILABLETABLES
 
     excel_file = pd.read_excel(excel)
 
@@ -28,14 +28,14 @@ def maakTafels(eventId):
 
     for row in tafels:
         if row[1]:
-            tafel = Tobs.Tafel(eventId,row[0]-1)
+            tafel = Tobs.Tafel(event_id, row[0] - 1)
             tafelobjects.append(tafel)
 
-    tafelobjects = sorted(tafelobjects, key=lambda tobj: tobj.maxAantal, reverse=True)
+    tafelobjects = sorted(tafelobjects, key=lambda tobj: tobj.max_number, reverse=True)
 
     i = 1
     for tafel in tafelobjects:
-        tafel.tafelnummer = i
+        tafel.table_number = i
         i += 1
 
 

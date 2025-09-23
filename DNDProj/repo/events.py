@@ -2,7 +2,7 @@ import sqlite3
 
 import settings
 
-import Classes.eventobjects as Eobs
+import classes.event_objects as E_obs
 
 from datetime import datetime
 
@@ -11,7 +11,7 @@ from datetime import datetime
 
 
 # Haalt alle events uit de databank en returned ze als een lijst EventObjects
-def maakUpcomingEvents():
+def make_upcoming_events():
 
     events = []
 
@@ -20,7 +20,7 @@ def maakUpcomingEvents():
     cursor = conn.cursor()
 
     # Select all rows from the table
-    cursor.execute("SELECT eventId, NaamEvent, Datum, Plaats  FROM Event")
+    cursor.execute("SELECT id, event_name, event_date, location  FROM Event")
 
 
     # Fetch all rows
@@ -31,7 +31,7 @@ def maakUpcomingEvents():
 
     for row in rows:
 
-        event = Eobs.Event(*row)
+        event = E_obs.Event(*row)
         events.append(event)
 
     return events
@@ -42,13 +42,13 @@ def maakUpcomingEvents():
 
 
 
-def geefDeelnemers ():
+def return_participants():
     conn = sqlite3.connect(settings.DATABASE)
 
     cursor = conn.cursor()
 
     # Select all rows from the table
-    cursor.execute("SELECT * FROM Deelnemer")
+    cursor.execute("SELECT * FROM Participant")
 
     # Fetch all rows
     rows = cursor.fetchall()
@@ -61,28 +61,28 @@ def geefDeelnemers ():
 
 
 
-def checkPersoon (items):
+def check_participant(items):
 
     conn = sqlite3.connect(settings.DATABASE)
     cursor = conn.cursor()
 
-    cursor.execute("SELECT Voornaam,Achternaam FROM Deelnemer")
+    cursor.execute("SELECT first_name, last_name FROM Participant")
 
-    Deelnemers = cursor.fetchall()
+    participants = cursor.fetchall()
 
     for item in items:
-        if item in Deelnemers:
+        if item in participants:
             print(item)
 
     conn.close()
 
-def voegEventToe (info):
+def add_event(info):
     conn = sqlite3.connect(settings.DATABASE)
     cursor = conn.cursor()
 
     # Insert data from the array into the table
     cursor.execute(
-        "INSERT INTO Event (EventId, NaamEvent, Datum, Plaats, Main) VALUES (?, ?, ?, ?, ?)",
+        "INSERT INTO Event (id, event_name, event_date, location) VALUES (?, ?, ?, ?)",
         info)
 
     # Commit changes and close connection
@@ -91,7 +91,7 @@ def voegEventToe (info):
 
 
 
-def voegPersonenToe ():
+def add_participants ():
 
 
     output = []
@@ -101,18 +101,19 @@ def voegPersonenToe ():
     cursor = conn.cursor()
 
     # Function to retrieve rows from the source table
-    cursor.execute("SELECT Voornaam,Achternaam,PersoonId FROM Inschrijvingen")
-    Inschrijvingen = cursor.fetchall()
+    cursor.execute("SELECT first_name ,last_name ,id FROM Registration")
+    registrations = cursor.fetchall()
 
-    cursor.execute("SELECT PersoonId FROM Deelnemer")
-    Deelnemers = cursor.fetchall()
+    cursor.execute("SELECT id FROM Participant")
+    participants = cursor.fetchall()
 
 
 
     manipulated_rows = []
-    for row in Inschrijvingen:
-        if row[3] in Deelnemers:
+    for row in registrations:
+        if row[3] in participants:
             output.append(row)
+
 
 
 

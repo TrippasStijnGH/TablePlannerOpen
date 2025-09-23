@@ -1,13 +1,13 @@
-import Repo.tafels as tafelRepo
-import Repo.inschrijvingen as inschrijvingenRepo
-import Repo.groepen as Rgroepen
+import repo.tables as tafelRepo
+import repo.registrations as inschrijvingenRepo
+import repo.groups as Rgroepen
 import services.planner1 as p1
 import pandas as pd
 
 
 def plantafelsAlfa(eventId):
-    lookupgroepnummer = Rgroepen.maakGroepen()[1]
-    groeplijst = Rgroepen.maakGroepen()[0]
+    lookupgroepnummer = Rgroepen.make_groups()[1]
+    groeplijst = Rgroepen.make_groups()[0]
     groepmembers = list(map(lambda x: x[1], groeplijst))
     tafelobjecten, remainingwolfs = p1.planTafels(eventId)
     j = 1
@@ -25,20 +25,20 @@ def plantafelsAlfa(eventId):
         i = 0
         tafel = []
 
-        tafel.append(f"__{tafelObj.maxAantal + 1}__   >>>Tafel: {tafelObj.tafelnummer} <<<")
+        tafel.append(f"__{tafelObj.max_number + 1}__   >>>Tafel: {tafelObj.table_number} <<<")
 
-        tafel.append(f"<{i}> > {tafelObj.dmName} {tafelObj.dm}")
+        tafel.append(f"<{i}> > {tafelObj.DM_name} {tafelObj.DM}")
         i += 1
 
-        for inschrijving in tafelObj.deelnemers:
+        for inschrijving in tafelObj.participants:
             groepnummer = 0
             if inschrijving.name in groepmembers:
                 groepnummer = lookupgroepnummer[inschrijving.name]
             happy = ":)"
 
-            if inschrijving.dm != tafelObj.dmName:
+            if inschrijving.DM != tafelObj.DM_name:
                 happy = ":("
-            if inschrijving.dm == "No preference":
+            if inschrijving.DM == "No preference":
                 happy = "NP"
 
             tinput = f"<{i}> o {groepnummer} {j} {happy} {inschrijving.name}"
@@ -46,7 +46,7 @@ def plantafelsAlfa(eventId):
             j += 1
             tafel.append(tinput)
 
-        for legePlaats in range(tafelObj.maxAantal - len(tafelObj.deelnemers)):
+        for legePlaats in range(tafelObj.max_number - len(tafelObj.participants)):
             tafel.append(f"<{i}> (x)")
             i+=1
 
@@ -73,8 +73,8 @@ def toExcel(eventId):
     tafelobjecten, remainingwolfs = p1.planTafels(eventId)
     output = []
     for tafel in tafelobjecten:
-        output.append(tafel.dmName)
-        for inschrijving in tafel.deelnemers:
+        output.append(tafel.DM_name)
+        for inschrijving in tafel.participants:
             output.append(inschrijving.name)
         output.append(" ")
 

@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 import unittest
 from unittest.mock import MagicMock
-import Repo.inschrijvingen as RepoInschrijvingen
+import repo.registrations as RepoInschrijvingen
 
 def populate_events(events_listbox, EventObjects):
     events_listbox.delete(0, tk.END)
@@ -12,10 +12,10 @@ def populate_events(events_listbox, EventObjects):
 
 def show_registrations(events_listbox, registrations_text, EventObjects, chosenEventId):
     registrations_text.delete(1.0, tk.END)  # Clear previous text
-    lijstInschrijvingen = RepoInschrijvingen.geefInschrijvingenEvent(chosenEventId)
+    lijstInschrijvingen = RepoInschrijvingen.return_registrations_event(chosenEventId)
     for item in lijstInschrijvingen:
-        naam = item.naam
-        dm = item.dm
+        naam = item.name
+        dm = item.DM
         remarks = item.remarks if item.remarks else ""
         registrations_text.insert(tk.END, f"Naam: {naam}\nGekozen DM: {dm}\nRemarks: {remarks}\n___\n \n")
 
@@ -42,7 +42,7 @@ class TestEventFunctions(unittest.TestCase):
         ]
 
         chosenEventId = 1
-        RepoInschrijvingen.geefInschrijvingenEvent = MagicMock(return_value=[
+        RepoInschrijvingen.return_registrations_event = MagicMock(return_value=[
             MagicMock(naam="John Doe", dm="DM1", remarks="Remark 1"),
             MagicMock(naam="Jane Doe", dm="DM2", remarks=None),
         ])

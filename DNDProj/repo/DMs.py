@@ -2,12 +2,12 @@ import sqlite3
 
 import settings
 
-import Classes.DMobjects as DMobs
-import Classes.DMgroepobjects as DMgroepobs
+import classes.DM_objects as DMobs
+import classes.DMgroup_objects as DMgroepobs
 
 import pandas as pd
 
-def geefDMs():
+def return_all_DMs():
 
     conn = sqlite3.connect(settings.DATABASE)
 
@@ -27,11 +27,11 @@ def geefDMs():
     conn.close()
 
 
-    DM_objects = maakDMobjects(rows)
+    DM_objects = make_DM_objects(rows)
 
     return DM_objects
 
-def geefSomeDms(lijst):
+def return_some_DMs(lijst):
 
     DMrows = []
     for DMnaam in lijst:
@@ -44,9 +44,9 @@ def geefSomeDms(lijst):
         cursor.execute("""
                     SELECT DM.* 
                     FROM DM
-                    WHERE Voornaam = ?
-                    AND Achternaam = ?
-                """, (voor,achter))
+                    WHERE first_name = ?
+                    AND last_name = ?
+                """, (voor, achter))
 
         # Fetch all rows
         result = cursor.fetchone()
@@ -55,7 +55,7 @@ def geefSomeDms(lijst):
         # Close the connection
         conn.close()
 
-    DM_objects = maakDMobjects(DMrows)
+    DM_objects = make_DM_objects(DMrows)
 
 
 
@@ -64,13 +64,13 @@ def geefSomeDms(lijst):
 
 
 
-def geefDMnamen():
+def return_DM_names():
     result = []
-    for obj in geefDMs():
-        result.append(obj.naam)
+    for obj in return_all_DMs():
+        result.append(obj.name)
     return result
 
-def maakNieuweDM(info):
+def make_new_DM(info):
 
     conn = sqlite3.connect(settings.DATABASE)
     cursor = conn.cursor()
@@ -78,28 +78,28 @@ def maakNieuweDM(info):
 
 
     # Insert data from the array into the table
-    cursor.execute("INSERT INTO DM (PersoonId, Voornaam, Achternaam, Email, Geboortedatum, Postcode, Maxspelers ) VALUES (?, ?, ?, ?, ?, ?, ?)", info)
+    cursor.execute("INSERT INTO DM (id, first_name, last_name, email, birth_date, postcode, max_players ) VALUES (?, ?, ?, ?, ?, ?, ?)", info)
 
     # Commit changes and close connection
     conn.commit()
     conn.close()
 
-def getDMId(voor, achter):
+def get_DM_id(first_name, last_name):
     conn = sqlite3.connect(settings.DATABASE)
     cursor = conn.cursor()
 
     cursor.execute("""
-        SELECT PersoonId 
+        SELECT id 
         FROM DM
-        WHERE Voornaam = ? AND Achternaam = ?;
-    """, (voor, achter))
+        WHERE first_name = ? AND last_name = ?;
+    """, (first_name, last_name))
 
     result = cursor.fetchone()
     conn.close()
 
     return result[0] if result else None
 
-def maakDMobject(row):
+def make_DM_object(row):
     naam = row[1] + " " + row[2]
 
     # Create DM object
@@ -107,12 +107,12 @@ def maakDMobject(row):
 
     return DM
 
-def maakDMobjects(lijst):
+def make_DM_objects(lijst):
     DMobjects = []
 
     for row in lijst:
         if not row[0] == 0:
-            DMobjects.append(maakDMobject(row))
+            DMobjects.append(make_DM_object(row))
     return DMobjects
 
 
@@ -121,7 +121,7 @@ def maakDMobjects(lijst):
 
 
 def geefBeschikbareDms():
-    excel = settings.EXCELBESCHIKBAREDMS
+    excel = settings.EXCEL_AVAILABLE_DMS
 
     excel_file = pd.read_excel(excel)
 
@@ -139,17 +139,17 @@ def geefBeschikbareDms():
 def maakLookupDMgroep(DMgroepen):
     lookupDMgroepen = {}
     for DMgroep in DMgroepen:
-        lookupDMgroepen[DMgroep.naam] = DMgroep
+        lookupDMgroepen[DMgroep.name] = DMgroep
 
     return lookupDMgroepen
 
 def maakDMgroepen():
     beschikbareDMs = geefBeschikbareDms()
 
-    DMobjecten = geefSomeDms(beschikbareDMs)
+    DMobjecten = return_some_DMs(beschikbareDMs)
     DMgroepen = []
     for dm in DMobjecten:
-        DMgroep = DMgroepobs.DMgroep(dm.id,dm.naam,dm.maxspelers)
+        DMgroep = DMgroepobs.DMgroup(dm.id, dm.name, dm.max_players)
         DMgroepen.append(DMgroep)
 
     lookup = maakLookupDMgroep(DMgroepen)

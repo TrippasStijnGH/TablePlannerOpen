@@ -1,15 +1,15 @@
 import unittest
 import sqlite3
 import settings
-import Classes.inschrijvingobjects as Iobs
-from Repo.inschrijvingen import geefInschrijvingenEvent  # Replace 'your_module' with the actual module name
+import classes.registration_objects as Iobs
+from repo.registrations import return_registrations_event  # Replace 'your_module' with the actual module name
 
 class TestGeefInschrijvingenEvent(unittest.TestCase):
 
 
     def test_geefInschrijvingenEvent(self):
         # Call the function being tested
-        inschrijvingen = geefInschrijvingenEvent("E1")  # Assuming eventid 1 exists in the test data
+        inschrijvingen = return_registrations_event("E1")  # Assuming eventid 1 exists in the test data
 
         # Assert that the result is not empty
         self.assertTrue(inschrijvingen)
@@ -20,8 +20,8 @@ class TestGeefInschrijvingenEvent(unittest.TestCase):
         # Assert that the retrieved Inschrijving object has the expected attributes
         inschrijving = inschrijvingen[0]
         self.assertEqual(inschrijving.id, "I1")
-        self.assertEqual(inschrijving.naam, "Stijn Trippas")
-        self.assertEqual(inschrijving.dm, "Sigurd Joostens")
+        self.assertEqual(inschrijving.name, "Stijn Trippas")
+        self.assertEqual(inschrijving.DM, "Sigurd Joostens")
         self.assertEqual(inschrijving.remarks, "Graag met Shriya Bajpai")
 
 

@@ -1,10 +1,10 @@
 import settings
 import sqlite3
 
-import Classes.deelnemerobjects as Dobs
+import classes.participant_objects as p_obs
 
-def geefAlleSpelers():
-    deelnemer_objects = []
+def return_all_participants():
+    participant_objects = []
 
     conn = sqlite3.connect(settings.DATABASE)
 
@@ -12,8 +12,8 @@ def geefAlleSpelers():
 
     # Select all rows from the table
     cursor.execute("""
-                    SELECT Deelnemer.* 
-                    FROM Deelnemer
+                    SELECT Participant.* 
+                    FROM Participant
 
                 """)
 
@@ -28,15 +28,15 @@ def geefAlleSpelers():
         naam = row[1] + " " + row[2]
 
         # Create Inschrijving object
-        deelnemer = Dobs.Deelnemer(row[0], naam, row[2], row[3], row[4])
+        deelnemer = p_obs.Participant(row[0], naam, row[2], row[3], row[4])
 
         # Append Inschrijving object to the list
-        deelnemer_objects.append(deelnemer)
+        participant_objects.append(deelnemer)
 
-    return deelnemer_objects
+    return participant_objects
 
 
-def knownEmail(email):
+def known_email(email):
     conn = sqlite3.connect(settings.DATABASE)
     cursor = conn.cursor()
 
@@ -55,22 +55,22 @@ def knownEmail(email):
 
 
 
-def geefSpelers(idlijst):
-    lijstmensen = []
+def return_participants(id_list):
+    participants = []
 
-    deelnemer_objects = []
+    participant_objects = []
 
-    for id in idlijst:
+    for id in id_list:
         conn = sqlite3.connect(settings.DATABASE)
 
         cursor = conn.cursor()
 
         # Select all rows from the table
         cursor.execute("""
-                SELECT Deelnemer.* 
-                FROM Deelnemer
+                SELECT Participant.* 
+                FROM Participant
 
-                WHERE Deelnemer.PersoonId = ?
+                WHERE Participant.id = ?
             """, (id,))
 
         # Fetch all rows
@@ -79,49 +79,49 @@ def geefSpelers(idlijst):
         # Close the connection
         conn.close()
 
-        lijstmensen.append(rows[0])
+        participants.append(rows[0])
 
-    for row in lijstmensen:
+    for row in participants:
         # Combine the third and fourth values to make "naam"
-        naam = row[1] + " " + row[2]
+        name = row[1] + " " + row[2]
 
         # Create Inschrijving object
-        deelnemer = Dobs.Deelnemer(row[0], naam, row[2], row[3], row[4])
+        participant_obj = p_obs.Participant(row[0], name, row[2], row[3], row[4])
 
         # Append Inschrijving object to the list
-        deelnemer_objects.append(deelnemer)
+        participant_objects.append(participant_obj)
 
-    return deelnemer_objects
+    return participant_objects
 
 
 
-def geefnamen(lijst):
-    namen = []
-    for deelnemer in lijst:
-        namen.append(deelnemer.naam)
-    return namen
+def return_names(partic_obj_list):
+    names = []
+    for participant in partic_obj_list:
+        names.append(participant.name)
+    return names
 
-def geefAllenamen():
-    namen = []
-    for deelnemer in geefAlleSpelers():
-        namen.append(deelnemer.naam)
-    return namen
+def return_all_names():
+    names = []
+    for particpant in return_all_participants():
+        names.append(particpant.name)
+    return names
 
-def returnAllEmails():
+def return_all_emails():
     emails = []
-    for deelnemer in geefAlleSpelers():
+    for deelnemer in return_all_participants():
         emails.append(deelnemer.email)
     return emails
 
-def maakNieuweSpeler(FirstName,LastName,Email,BirthDay,Postcode):
+def make_new_participant(first_name, last_name, email, birth_day, postcode):
     conn = sqlite3.connect(settings.DATABASE)
     cursor = conn.cursor()
 
 
 
     # Insert data from the array into the table
-    cursor.execute("INSERT INTO Deelnemer (Voornaam, Achternaam, Email, Geboortedatum, Postcode ) VALUES (?, ?, ?, ?, ?)",
-                   (FirstName,LastName,Email,BirthDay,Postcode)
+    cursor.execute("INSERT INTO Deelnemer (first_name, last_name, email, birth_date, postcode ) VALUES (?, ?, ?, ?, ?)",
+                   (first_name, last_name, email, birth_day, postcode)
                    )
 
 
@@ -129,7 +129,7 @@ def maakNieuweSpeler(FirstName,LastName,Email,BirthDay,Postcode):
     conn.commit()
     conn.close()
 
-def getDeelnemerId(voor, achter):
+def get_participant_id(first_name, last_name):
 
 
     conn = sqlite3.connect(settings.DATABASE)
@@ -138,11 +138,11 @@ def getDeelnemerId(voor, achter):
 
     # Select all rows from the table
     cursor.execute("""
-                        SELECT PersoonId 
-                        FROM Deelnemer
-                        WHERE Voornaam = ? AND Achternaam = ?;
+                        SELECT id 
+                        FROM Participant
+                        WHERE first_name = ? AND last_name = ?;
 
-                    """,(voor,achter))
+                    """, (first_name, last_name))
 
     # Fetch all rows
     rows = cursor.fetchall()
@@ -152,14 +152,14 @@ def getDeelnemerId(voor, achter):
 
     return rows[0][0]
 
-def getParticipantIdByEmail(email):
+def get_participant_id_by_email(email):
     conn = sqlite3.connect(settings.DATABASE)
     cursor = conn.cursor()
 
     cursor.execute("""
-        SELECT PersoonId 
-        FROM Deelnemer
-        WHERE Email = ?;
+        SELECT id 
+        FROM Participant
+        WHERE email = ?;
     """, (email,))  # Note the comma after email to make it a tuple
 
     rows = cursor.fetchall()

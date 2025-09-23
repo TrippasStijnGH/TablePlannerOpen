@@ -1,4 +1,4 @@
-class Inschrijving:
+class Registration:
     def __init__(self, persoon_id, name, dm):
 
         self.persoon_id = persoon_id
@@ -6,7 +6,7 @@ class Inschrijving:
         self.dm = dm
 
 
-class registrationDP:
+class RegistrationDP:
     def __init__(self, participant, email, dm, notes):
 
         self.participant = participant
