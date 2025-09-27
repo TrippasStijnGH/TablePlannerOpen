@@ -4,44 +4,44 @@ import settings
 
 import pandas as pd
 
-import classes.table_objects as Tobs
+import classes.table_objects as t_obs
 
 
 def make_tables(event_id):
 
-    excel = settings.EXCELAVAILABLETABLES
+    excel = settings.EXCEL_AVAILABLE_TABLES
 
     excel_file = pd.read_excel(excel)
 
-    tafelHeaders = ["Tafel","Beschikbaarheid"]
-    tafels = []
-    tafelobjects = []
+    table_headers = ["Table","Available"]
+    tables = []
+    table_objects = []
 
 
 
     for index, row in excel_file.iterrows():
-        valuesTafelExcel = [row[header] for header in tafelHeaders]
-        tafels.append(valuesTafelExcel)
+        values_table_excel = [row[header] for header in table_headers]
+        tables.append(values_table_excel)
 
 
 
 
-    for row in tafels:
+    for row in tables:
         if row[1]:
-            tafel = Tobs.Tafel(event_id, row[0] - 1)
-            tafelobjects.append(tafel)
+            tafel = t_obs.Tafel(event_id, row[0] - 1)
+            table_objects.append(tafel)
 
-    tafelobjects = sorted(tafelobjects, key=lambda tobj: tobj.max_number, reverse=True)
+    table_objects = sorted(table_objects, key=lambda tobj: tobj.max_number, reverse=True)
 
     i = 1
-    for tafel in tafelobjects:
+    for tafel in table_objects:
         tafel.table_number = i
         i += 1
 
 
 
 
-    return (tafelobjects)
+    return table_objects
 
 
 

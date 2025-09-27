@@ -21,14 +21,14 @@ def return_registrations_event(event_id):
     cursor.execute("""
         SELECT
         Registration.participant_id,
-        Deelnemer.first_name, 
-        Deelnemer.last_name,   
+        Participant.first_name, 
+        Participant.last_name,   
         DM.first_name, 
         DM.last_name
         FROM Registration
         JOIN DM ON Registration.pref_DM_id = DM.id
         JOIN Participant ON Registration.Participant_id = Participant.id
-        WHERE registartion.event_id = ?
+        WHERE Registration.event_id = ?
     """, (event_id,))
 
     # Fetch all rows
@@ -68,15 +68,15 @@ def return_registration_DP(event_id):
     # Select all rows from the table
     cursor.execute("""
             SELECT
-            participant.first_name, 
-            participant.last_name, 
-            participant_email,  
+            Participant.first_name, 
+            Participant.last_name, 
+            Participant.email,  
             DM.first_name, 
             DM.last_name,
             Notes
             FROM Registration
             JOIN DM ON Registration.pref_DM_id = DM.id
-            JOIN Participant ON Registration.participant_id = participant.id
+            JOIN Participant ON Registration.participant_id = Participant.id
             WHERE Registration.event_id = ?
         """, (event_id,))
 
@@ -111,13 +111,13 @@ def return_registration_DP(event_id):
 
 
 
-def maakingschrijving(eventcode, particid, dmprefid=0, notes=None):
+def make_registration(event_code, partic_id, dm_prefid=0, notes=None):
     conn = sqlite3.connect(settings.DATABASE)
     cursor = conn.cursor()
 
     # Insert data from the array into the table
-    cursor.execute("INSERT INTO Inschrijving (EventId, PersoonId, DMpref, Notes) VALUES (?, ?, ?, ?)",
-                   (eventcode, particid, dmprefid, notes))
+    cursor.execute("INSERT INTO Registration (event_id, participant_id, pref_DM_id, notes) VALUES (?, ?, ?, ?)",
+                   (event_code, partic_id, dm_prefid, notes))
 
     # Commit changes and close connection
     conn.commit()
@@ -125,18 +125,18 @@ def maakingschrijving(eventcode, particid, dmprefid=0, notes=None):
 
 
 
-def zoekInschrijving(playerid, code):
+def find_participant_event(player_id, event_id):
     conn = sqlite3.connect(settings.DATABASE)
 
     cursor = conn.cursor()
 
     # Select all rows from the table
     cursor.execute("""
-            SELECT PersoonId
-            FROM Inschrijving
-            WHERE PersoonId = ? 
-            AND EventId = ?
-        """, (playerid, code))
+            SELECT participant_id
+            FROM Registration
+            WHERE participant_id = ? 
+            AND event_id = ?
+        """, (player_id, event_id))
 
     # Fetch all rows
     rows = cursor.fetchone()
@@ -147,24 +147,24 @@ def zoekInschrijving(playerid, code):
 
     return rows is not None
 
-def verwijderInschrijvingen(eventId):
+def delete_registration(event_id):
 
 
     conn = sqlite3.connect(settings.DATABASE)
     cursor = conn.cursor()
 
 
-    delete_query = "DELETE FROM Inschrijving WHERE eventId = ?"
+    delete_query = "DELETE FROM Inschrijving WHERE event_id = ?"
 
 
-    cursor.execute(delete_query, (eventId,))
+    cursor.execute(delete_query, (event_id,))
 
 
     conn.commit()
 
 
 
-def zoekInschrijving(eventId):
+def find_registration(event_id):
     conn = sqlite3.connect(settings.DATABASE)
     cursor = conn.cursor()
 
@@ -172,7 +172,7 @@ def zoekInschrijving(eventId):
     select_query = f"SELECT 1 FROM Inschrijving WHERE EventId = ? LIMIT 1"
 
     # Execute the SELECT query
-    cursor.execute(select_query, (eventId,))
+    cursor.execute(select_query, (event_id,))
 
     # Fetch one row
     result = cursor.fetchone()

@@ -1,15 +1,15 @@
 class Registration:
-    def __init__(self, persoon_id, name, dm):
+    def __init__(self, persoon_id, name, DM):
 
         self.persoon_id = persoon_id
         self.name = name
-        self.dm = dm
+        self.DM = DM
 
 
 class RegistrationDP:
-    def __init__(self, participant, email, dm, notes):
+    def __init__(self, participant, email, DM, notes):
 
         self.participant = participant
         self.email = email
-        self.dm = dm
+        self.DM = DM
         self.notes = notes

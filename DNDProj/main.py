@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-import repo.events as REvents
-import repo.registrations as RepoInschrijvingen
-import services.Tafelplanner as Tplanner
-import services.data_input as DataInput
+import repo.events as r_events
+import repo.registrations as r_registrations
+import services.planning_display as s_plan
+import services.data_input as s_input
 
 import tkinter as tk
 from tkinter import ttk
@@ -10,58 +10,57 @@ from tkinter import ttk
 
 # Haalt alle toekomstige evenementen uit de database en steekt ze in een listbox
 def populate_events():
-    EventObjects = REvents.make_upcoming_events()
+    event_objects = r_events.make_upcoming_events()
 
-    for item in EventObjects:
-        listItem = f"{item.name} {item.date}"
-        events_listbox.insert(tk.END, listItem)
+    for item in event_objects:
+        list_item = f"{item.name} {item.date}"
+        events_listbox.insert(tk.END, list_item)
 
 # Haalt alle inschrijvingen op met het gekozen eventId en steekt ze in registration_ text
 def show_registrations(event):
-    EventObjects = REvents.make_upcoming_events()
+    event_objects = r_events.make_upcoming_events()
     i = 0
 
     selected_index = events_listbox.curselection()
     if selected_index:
-        eventInput = selected_index[0]
-        chosenEventId = EventObjects[eventInput].id
-        lijstInschrijvingen = RepoInschrijvingen.return_registration_DP(chosenEventId)
+        event_input = selected_index[0]
+        chosen_event_id = event_objects[event_input].id
+        list_registrations = r_registrations.return_registration_DP(chosen_event_id)
 
-        lijstInschrijvingen.sort(key=lambda obj: obj.participant)
+        list_registrations.sort(key=lambda obj: obj.participant)
 
 
         registrations_text.delete(1.0, tk.END)  # Vorige tekst verwijderen
-        for item in lijstInschrijvingen:
-            naam = item.participant
+        for item in list_registrations:
+            name = item.participant
             email = item.email
-            dm = item.DM
+            DM = item.DM
             notes = item.notes if item.notes else ""
-            registrations_text.insert(tk.END, f"Naam: {naam}\nEmail: {email}\nGekozen DM: {dm}\nNotes: {notes}\n___\n \n")
+            registrations_text.insert(tk.END, f"Naam: {name}\nEmail: {email}\nGekozen DM: {DM}\nNotes: {notes}\n___\n \n")
 
 def show_description():
-    EventObjects = REvents.make_upcoming_events()
+    event_objects = r_events.make_upcoming_events()
 
     selected_index = events_listbox.curselection()
     if selected_index:
-        input = selected_index[0]
-        selected_event = EventObjects[input].id
+        event_input = selected_index[0]
+        selected_event = event_objects[event_input].id
         description_text.delete(1.0, tk.END)
-        description_text.insert(tk.END, Tplanner.plantafelsAlfa(selected_event))
+        description_text.insert(tk.END, s_plan.return_planning(selected_event))
 
-def naarExcel():
-    EventObjects = REvents.make_upcoming_events()
+def to_excel():
+    event_objects = r_events.make_upcoming_events()
 
     selected_index = events_listbox.curselection()
     if selected_index:
-        input = selected_index[0]
-        selected_event = EventObjects[input].id
-        Tplanner.toExcel(selected_event)
+        event_input = selected_index[0]
+        selected_event = event_objects[event_input].id
+        s_plan.to_excel(selected_event)
 
 
 
-
-def UploadEFiles():
-    DataInput.leesInschrijvingenDoc()
+def upload_files():
+    s_input.save_participants()
 
 
 root = tk.Tk()
@@ -94,13 +93,13 @@ description_button.grid(row=0, column=0, pady=5)
 button_frame = ttk.Frame(root)
 button_frame.grid(row=0, column=0, pady=(70, 400), padx=(10,240))
 
-description_button = ttk.Button(button_frame, text="Upload Excel files", command=UploadEFiles)
+description_button = ttk.Button(button_frame, text="Upload Excel files", command=upload_files)
 description_button.grid(row=0, column=0, pady=5)
 
 button_frame = ttk.Frame(root)
 button_frame.grid(row=0, column=0, pady=(70, 400), padx=(200,0))
 
-description_button = ttk.Button(button_frame, text="Save to Excel", command=naarExcel)
+description_button = ttk.Button(button_frame, text="Save to Excel", command=to_excel)
 description_button.grid(row=0, column=0, pady=5)
 
 registrations_frame = ttk.Frame(root)

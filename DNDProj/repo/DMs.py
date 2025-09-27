@@ -2,8 +2,8 @@ import sqlite3
 
 import settings
 
-import classes.DM_objects as DMobs
-import classes.DMgroup_objects as DMgroepobs
+import classes.DM_objects as DM_obs
+import classes.DMgroup_objects as DMgroup_obs
 
 import pandas as pd
 
@@ -103,7 +103,7 @@ def make_DM_object(row):
     naam = row[1] + " " + row[2]
 
     # Create DM object
-    DM = DMobs.DM(row[0], naam, row[6])
+    DM = DM_obs.DM(row[0], naam, row[6])
 
     return DM
 
@@ -117,43 +117,40 @@ def make_DM_objects(lijst):
 
 
 
-
-
-
-def geefBeschikbareDms():
+def return_available_DMs():
     excel = settings.EXCEL_AVAILABLE_DMS
 
     excel_file = pd.read_excel(excel)
 
-    BDMHeaders = ["Beschikbare DM's"]
-    BeschikbareDMlijst = []
+    ADM_header = ["Available DMs"]
+    ADM_list = []
 
 
     for index, row in excel_file.iterrows():
-        valuesDM = [row[header] for header in BDMHeaders]
-        BeschikbareDMlijst.append(valuesDM[0])
+        DM = [row[header] for header in ADM_header]
+        ADM_list.append(DM[0])
 
-    return BeschikbareDMlijst
+    return ADM_list
 
 
-def maakLookupDMgroep(DMgroepen):
-    lookupDMgroepen = {}
-    for DMgroep in DMgroepen:
-        lookupDMgroepen[DMgroep.name] = DMgroep
+def make_DM_lookup_group(DMgroups):
+    lookup_DMgroups = {}
+    for DMgroup in DMgroups:
+        lookup_DMgroups[DMgroup.name] = DMgroup
 
-    return lookupDMgroepen
+    return lookup_DMgroups
 
-def maakDMgroepen():
-    beschikbareDMs = geefBeschikbareDms()
+def make_DM_groups():
+    available_DMs = return_available_DMs()
 
-    DMobjecten = return_some_DMs(beschikbareDMs)
-    DMgroepen = []
-    for dm in DMobjecten:
-        DMgroep = DMgroepobs.DMgroup(dm.id, dm.name, dm.max_players)
-        DMgroepen.append(DMgroep)
+    DM_objects = return_some_DMs(available_DMs)
+    DMgroups = []
+    for DM in DM_objects:
+        DMgroup = DMgroup_obs.DMgroup(DM.id, DM.name, DM.max_players)
+        DMgroups.append(DMgroup)
 
-    lookup = maakLookupDMgroep(DMgroepen)
-    return ([DMgroepen,lookup])
+    lookup = make_DM_lookup_group(DMgroups)
+    return ([DMgroups,lookup])
 
 
 
