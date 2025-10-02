@@ -2,6 +2,7 @@ import repo.groups as r_groups
 import repo.registrations as r_registrations
 import repo.DMs as r_DMs
 import repo.tables as r_tables
+import services.cluster_gen as s_clust
 import classes.table_objects as Tobs
 
 
@@ -10,24 +11,92 @@ def plan_tafels(event_id):
     # make table objects
     t_objects = r_tables.make_tables(event_id)
 
-    # fill the DMgroup with  player clusters
+    # fill the DMgroup with  player clusters and lone wolfs with their prefered DM
+    # keep aside clusters that could not be assigned to a DMgroup
+    # keeps aside lone wolfs
     DM_groups, rejected_clusters, all_LWs = fill_DMgroup_clusters(event_id)
+    # 50 members check
+
+    clustermembers1 = 0
+
+    for DMgroup in DM_groups:
+        for rankedcluster in DMgroup.ranked_cluster_pouch:
+            clustermembers1 += len(rankedcluster[0])
+
+        clustermembers1 += len(DMgroup.DMlonewolf_pouch)
+
+    clustermembers2 = 0
+    for cluster in rejected_clusters:
+        clustermembers2 += len(cluster)
+
+
+    print(f"dmgroup received: {clustermembers1}")
+    print(f"rejected_clusters received: {clustermembers2}")
+    print(f"LW: {len(all_LWs)}")
+    print(f"total received: {clustermembers1 + clustermembers2 +len(all_LWs)}")
+
+    print("--- +++ ---")
+
+
 
     # assign the lone wolves with DM preference to their preferred DM
     # put aside lone wolves that had no preference or could not be assigned to their preferred DM
+    # don't touch the rejected clusters yet
     DM_groups, LWs = assign_LW_DM(all_LWs, DM_groups)
+    #50 members check
+
+    clustermembers1 = 0
+
+    assingedLWs = 0
+
+
+    for DMgroup in DM_groups:
+        for rankedcluster in DMgroup.ranked_cluster_pouch:
+            clustermembers1 += len(rankedcluster[0])
+
+        assingedLWs += len(DMgroup.DMlonewolf_pouch)
+
+
+    print(f"dmgroup received: {clustermembers1}")
+    print(f"assigned LWs: {assingedLWs}")
+    print(f"leftover LWs: {len(LWs)}")
+    print(f"leftover rected clusters: {clustermembers2}")
+    print(f"total received: {clustermembers1 + assingedLWs + len(LWs) + clustermembers2}")
+
+
+    print("--- +++ ---")
+
+
 
     # assign the DMgroups to a table
     # put aside player clusters that could not be assigned to a table of their preferred DM
     # put aside lone wolves that could not be assigned to a table of their preferred DM
-    t_objects, rejected_clusters, added_LWs = DMgroup_to_tables(DM_groups,t_objects)
+    t_objects, added_rejected_clusters, added_LWs = DMgroup_to_tables(DM_groups,t_objects)
 
+    # add the rejected_clusters to the existing pool of rejected clusters
+    rejected_clusters = rejected_clusters + added_rejected_clusters
     # add the lone wolves to the existing pool of lone wolves
     LWs = LWs + added_LWs
 
+    clustermembers1 = 0
+    for t_object in t_objects:
+        clustermembers1 += len(t_object.participants)
+
+    clustermembers2 = 0
+    for cluster in rejected_clusters:
+
+        clustermembers2 += len(cluster)
+
+    print(f"t_objects received: {clustermembers1}")
+    print(f"rejected_clusters received: {clustermembers2}")
+    print(f"LW: {len(all_LWs)}")
+    print(f"total received: {clustermembers1 + clustermembers2 + len(LWs)}")
+
+
+
     # assign the rejected player clusters to any available table
     # break up non-assigned rejected player clusters and add them to any available table
-    t_objects= assign_rejected_clusters(t_objects, rejected_clusters)
+    t_objects = assign_rejected_clusters(t_objects, rejected_clusters)
 
     t_objects, LWs = assign_remaining_LWs(t_objects, LWs)
 
@@ -39,9 +108,9 @@ def plan_tafels(event_id):
 #this creates DMgroup objects who hold ranked clusters and lonewolfs
 #ranked clusters are clusters of participants who want to sit together,
 def fill_DMgroup_clusters(eventId):
-    clusters, LWs = make_clusters(eventId)
+    clusters, LWs = s_clust.make_clusters(eventId)
     DMgroups, DMgroup_lookup = r_DMs.make_DM_groups()
-    ranked_clusters = clusters_ranked(clusters)
+    ranked_clusters = s_clust.clusters_ranked(clusters)
     rejected_clusters = []
 
     for cluster in ranked_clusters:
@@ -53,10 +122,10 @@ def fill_DMgroup_clusters(eventId):
         for ranked_DM in cluster[1]:
             if not assigned:
                 DMgroup = DMgroup_lookup[ranked_DM[1]]
-                if DMgroup.max_players >= len(cluster[0]):
+                if DMgroup.available_spots >= len(cluster[0]):
                     DMgroup.ranked_cluster_pouch.append(cluster)
 
-                    DMgroup_lookup[ranked_DM[1]].max_players = DMgroup.max_players - len(cluster[0])
+                    DMgroup_lookup[ranked_DM[1]].available_spots = DMgroup.available_spots - len(cluster[0])
                     assigned = True
             else:
                 break
@@ -71,108 +140,6 @@ def fill_DMgroup_clusters(eventId):
     return [DMgroups, rejected_clusters, LWs]
 
 
-
-
-
-#
-def make_clusters(event_id):
-    clusters = []
-    LWs = []
-
-    answer = r_groups.make_groups()
-    registrations = r_registrations.return_registrations_event(event_id)
-
-    #loop will use this to see who is already assigned
-    registration_names = []
-
-    for registration in registrations:
-        registration_names.append(registration.name)
-
-    registration_lookup = {}
-    for registration in registrations:
-        registration_lookup[registration.name] = registration
-
-    # groeplijst is gewoon de excel met namen van groepleden
-    group_list = answer[0]
-    # dit is een lijst met enkel de namen en niet de groepnummers
-    names_group_list = []
-
-    for tupel in group_list:
-        names_group_list.append(tupel[1])
-    lookupgroup = answer[1]
-    groups = answer[2]
-
-
-    for registration in registrations:
-        cluster = []
-        name = registration.name
-
-        if name in registration_names:
-            if name in names_group_list:
-                # zoek groepnummer
-                groepnummer = lookupgroup[name]
-                # zoek de groep
-                groep = groups[groepnummer]
-                # zet alle groepleden in de cluster als ze in de inschrijvingen staan
-                # en verwijder ze dan uit de inschrijvingen
-                for persoon in groep.members:
-                    if persoon in registration_names:
-                        lidInschrijving = registration_lookup[persoon]
-                        cluster.append(lidInschrijving)
-                        registration_names.remove(persoon)
-
-            else:
-                LWs.append(registration)
-
-        # als er daadwerkelijk iets in de cluster zit
-        if len(cluster) > 1:
-            clusters.append(cluster)
-        # clusters mogen niet te groot zijn
-        if len(cluster) > 9:
-            for i in range(len(cluster) - 7):
-                LWs.append(cluster.pop())
-
-    return [clusters, LWs]
-
-#
-def clusters_ranked(clusters):
-    """
-    Rank DMs by popularity within each cluster.
-
-    Args:
-        clusters (list): List of clusters, each containing registration objects
-                        with a 'DM' attribute.
-
-    Returns:
-        list: List of [cluster, ranked_DMs] pairs, where ranked_DMs is a
-              list of (rank, dm_name) tuples for the top 3 most popular DMs.
-
-    Example:
-         clusters = [[reg1, reg2], [reg3, reg4]]
-         result = clusters_ranked(clusters)
-         Returns: [[cluster1, [(1, "Alice"), (2, "Bob")]], ...]
-    """
-
-    ranked_clusters = []
-
-    for cluster in clusters:
-        DM_counts = {} #dictionary of how many participants chose this DM
-        for registration in cluster:
-            if registration.DM != "No preference":
-                if registration.DM in DM_counts:
-                    DM_counts[registration.DM] += 1
-                else:
-                    DM_counts[registration.DM] = 1
-
-        #sorts the most chosen DMs and leaves only 3 most popular
-        sorted_DMs = sorted(DM_counts.items(), key=lambda item: item[1], reverse=True)[:3]
-
-        #turns the dictionary into an enumerate exm: [(1, "Alice"), (2, "Bob"), (3, "Charlie")]
-        ranked_DMs = [(rank + 1, dm) for rank, (dm, count) in enumerate(sorted_DMs)]
-
-        ranked_clusters.append([cluster, ranked_DMs])
-
-    return ranked_clusters
 
 def assign_LW_DM(all_LWs, DM_groups):
 
@@ -190,17 +157,18 @@ def assign_LW_DM(all_LWs, DM_groups):
     for wolf in DMLWs:
         for DM_group in DM_groups:
             if wolf.DM == DM_group.name:
-                DM_group.DMlonewolf_pouch.append(wolf)
-                break
+                if DM_group.available_spots > 0:
+                    DM_group.DMlonewolf_pouch.append(wolf)
+                    DM_group.available_spots -= 0
+                    break
 
     return (DM_groups, NPLWs)
 
 
 def DMgroup_to_tables(DM_groups, t_objects):
 
-    # om te zien hoeveel mensen er in de clusters zitten, het totaal afgetrokken van hoeveel plaatsen over
-    DM_groups = sorted(DM_groups, key=lambda DM_group: DM_group.max_players_start - DM_group.max_players + len(
-        DM_group.DMlonewolf_pouch), reverse=True)
+    # sort the DMgroups by how many players are assigned to them either in form of clusters or LWs
+    DM_groups = sorted(DM_groups, key=lambda DM_group: DM_group.max_players_pref - DM_group.available_spots, reverse=True)
 
     NPLWs = []
 
@@ -214,9 +182,9 @@ def DMgroup_to_tables(DM_groups, t_objects):
             # zet de DM bij deze tafel
             t_object.DM_name = DM_group.name
             t_object.DM = DM_group.id
-            t_object.DM_max_number = DM_group.max_players_start
+            t_object.DM_max_number = DM_group.max_players_pref
             # als het er allemaal in past steek het allemaal in
-            if t_object.max_number <= DM_group.max_players_start - DM_group.max_players:
+            if t_object.max_number <= DM_group.max_players_pref - DM_group.available_spots:
                 for cluster in DM_group.ranked_cluster_pouch:
                     for speler in cluster[0]:
                         t_object.participants.append(speler)
