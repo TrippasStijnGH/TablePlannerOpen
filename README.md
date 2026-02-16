@@ -15,14 +15,16 @@ Events at DNDGent typically consist of around 50 participants divided over appro
 ## Features
 
 ### Excel-Based Interface
-The tool is designed to integrate into the organizers' existing workflow. Input data (participants, preferences, available DMs, and reserved tables) is read from Excel files that the organizers maintain. The generated seating plan is also exported as an Excel file.
+The tool is designed to integrate into the organizers' existing workflow. Input data (participants, preferences, available DMs, and reserved tables) is read from Excel files that the organizers maintain. The generated seating plan is also exported as an Excel file.  
+Excel files used as input: [Excel Input](DatabaseDnd/ExcelData)
+
 
 ### Sorting Algorithm
 All the preferences, for both player groups and desired DMs, and the rules of planning are taken into account. The participants' preferences for their playmates are kept as "friendgroups".
 
 Every player is part of either one friendgroup or none. The participants for a specific event that are of the same friendgroup are put together in clusters. Clusters are paired with the DM with the most "votes" (each respective player’s reported preferred DM). The biggest clusters are paired with the biggest tables.
 
-Those that don't have a group, or who have no members of their group participating, are put at the tables of their preferred DM or distributed evenly between the remaining spots.
+Those that don't have a group, or who have no members of their group participating, are put at the tables of their preferred DM or distributed evenly between the remaining spots.  
 This is the main feature of this application see here:
 [Table Planner](DNDProj/services/planner.py)
 
