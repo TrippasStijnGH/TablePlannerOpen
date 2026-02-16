@@ -11,12 +11,14 @@ def plan_tafels(event_id):
     # make table objects
     t_objects = r_tables.make_tables(event_id)
 
+    #STEP1
     # fill the DMgroup with  player clusters and lone wolfs with their prefered DM
     # keep aside clusters that could not be assigned to a DMgroup
     # keeps aside lone wolfs
     DM_groups, rejected_clusters, all_LWs = fill_DMgroup_clusters(event_id)
-    # 50 members check
 
+    """
+    # 50 members check
     clustermembers1 = 0
 
     for DMgroup in DM_groups:
@@ -34,17 +36,18 @@ def plan_tafels(event_id):
     print(f"rejected_clusters received: {clustermembers2}")
     print(f"LW: {len(all_LWs)}")
     print(f"total received: {clustermembers1 + clustermembers2 +len(all_LWs)}")
-
     print("--- +++ ---")
 
-
-
+    """
+    
+    #STEP2
     # assign the lone wolves with DM preference to their preferred DM
     # put aside lone wolves that had no preference or could not be assigned to their preferred DM
     # don't touch the rejected clusters yet
     DM_groups, LWs = assign_LW_DM(all_LWs, DM_groups)
+    
+    """
     #50 members check
-
     clustermembers1 = 0
 
     assingedLWs = 0
@@ -62,12 +65,11 @@ def plan_tafels(event_id):
     print(f"leftover LWs: {len(LWs)}")
     print(f"leftover rected clusters: {clustermembers2}")
     print(f"total received: {clustermembers1 + assingedLWs + len(LWs) + clustermembers2}")
-
-
     print("--- +++ ---")
+    """
 
 
-
+    #STEP 3
     # assign the DMgroups to a table
     # put aside player clusters that could not be assigned to a table of their preferred DM
     # put aside lone wolves that could not be assigned to a table of their preferred DM
@@ -78,6 +80,8 @@ def plan_tafels(event_id):
     # add the lone wolves to the existing pool of lone wolves
     LWs = LWs + added_LWs
 
+
+    """
     clustermembers1 = 0
     for t_object in t_objects:
         clustermembers1 += len(t_object.participants)
@@ -91,9 +95,10 @@ def plan_tafels(event_id):
     print(f"rejected_clusters received: {clustermembers2}")
     print(f"LW: {len(all_LWs)}")
     print(f"total received: {clustermembers1 + clustermembers2 + len(LWs)}")
+    """
 
 
-
+    #STEP 4
     # assign the rejected player clusters to any available table
     # break up non-assigned rejected player clusters and add them to any available table
     t_objects = assign_rejected_clusters(t_objects, rejected_clusters)
@@ -411,5 +416,29 @@ def assign_remaining_LWs(t_objects, LWs):
         i += 1
 
     return (tables_final,LWs)
+
+
+def participanst_number_check(DM_groups):
+    # 50 members check
+    clustermembers1 = 0
+
+    for DMgroup in DM_groups:
+        for rankedcluster in DMgroup.ranked_cluster_pouch:
+            clustermembers1 += len(rankedcluster[0])
+
+        clustermembers1 += len(DMgroup.DMlonewolf_pouch)
+
+    clustermembers2 = 0
+    for cluster in rejected_clusters:
+        clustermembers2 += len(cluster)
+
+
+    print(f"dmgroup received: {clustermembers1}")
+    print(f"rejected_clusters received: {clustermembers2}")
+    print(f"LW: {len(all_LWs)}")
+    print(f"total received: {clustermembers1 + clustermembers2 +len(all_LWs)}")
+
+    print("--- +++ ---")
+
 
 
