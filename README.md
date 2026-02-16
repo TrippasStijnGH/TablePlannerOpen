@@ -30,12 +30,12 @@ This is the main feature of this application see here:
 A straightforward interface displays all registrations alongside the suggested seating plan. Icons indicate which participants share a friend group and whether they've been matched with their preferred DM.
 
 ### Planning requirements list
-1 Seats players with friends
-2 Seats players with prefered DM's
-3 Does not exceed a DM's prefered maximum number of players, but will if necessary to seat all players
-4 Will never put less then 3 players at one table
-5 Will distribute players evenly among tables if all above requirements are satisfied
-6 Puts the biggest groups at the biggest tables
+1 Seats players with friends  
+2 Seats players with prefered DM's  
+3 Does not exceed a DM's prefered maximum number of players, but will if necessary to seat all players  
+4 Will never put less then 3 players at one table  
+5 Will distribute players evenly among tables if all above requirements are satisfied  
+6 Puts the biggest groups at the biggest tables  
 
 
 
