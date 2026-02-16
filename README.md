@@ -24,7 +24,7 @@ Every player is part of either one friendgroup or none. The participants for a s
 
 Those that don't have a group, or who have no members of their group participating, are put at the tables of their preferred DM or distributed evenly between the remaining spots.
 This is the main feature of this application see here:
-[Table Planner](DNDProj/services/Planner.py)
+[Table Planner](DNDProj/services/planner.py)
 
 ### Simple GUI
 A straightforward interface displays all registrations alongside the suggested seating plan. Icons indicate which participants share a friend group and whether they've been matched with their preferred DM.
