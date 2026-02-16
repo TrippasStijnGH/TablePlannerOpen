@@ -31,9 +31,7 @@ A straightforward interface displays all registrations alongside the suggested s
 
 ### Planning requirements list
 1 Seats players with friends
-
 2 Seats players with prefered DM's
-
 3 Does not exceed a DM's prefered maximum number of players, but will if necessary to seat all players
 4 Will never put less then 3 players at one table
 5 Will distribute players evenly among tables if all above requirements are satisfied
