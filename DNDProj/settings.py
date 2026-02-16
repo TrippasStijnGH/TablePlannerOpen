@@ -1,0 +1,5 @@
+DATABASE = 'C:\\Users\\Stijn\\Dev\\DemoProjects\\TablePlanner\\DatabaseDnd\\DnD.db'
+EXCEL_REGISTRATIONS = 'C:\\Users\\Stijn\\Dev\\DemoProjects\\TablePlanner\\DatabaseDnd\\ExcelData\\S001.xlsx'
+EXCEL_GROUPS = 'C:\\Users\\Stijn\\Dev\\DemoProjects\\TablePlanner\\DatabaseDnd\\ExcelData\\GroupPreferences.xlsx'
+EXCEL_AVAILABLE_DMS = 'C:\\Users\\Stijn\\Dev\\DemoProjects\\TablePlanner\\DatabaseDnd\\ExcelData\\DMsAvailable.xlsx'
+EXCEL_AVAILABLE_TABLES = 'C:\\Users\\Stijn\\Dev\\DemoProjects\\TablePlanner\\DatabaseDnd\\ExcelData\\TablesAvailable.xlsx'
