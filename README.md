@@ -2,7 +2,7 @@
 
 **Event Seating Planning Tool for DNDGent**
 
-TablePlanner is a tool that helps the organizers of [DNDGent](https://www.dndgent.be/) efficiently plan seating arrangements for their tabletop RPG events.
+TablePlanner is a tool that helps the organizers of [D&DGent](https://www.dndgent.be/) efficiently plan seating arrangements for their tabletop RPG events.
 
 ### Showcase
 
