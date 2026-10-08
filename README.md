@@ -6,7 +6,8 @@ TablePlanner is a tool that helps the organizers of [D&DGent](https://www.dndgen
 
 ### Showcase
 
-https://github.com/user-attachments/assets/9c78af46-ecf5-469d-9d71-f46ecf672ea8
+https://github.com/user-attachments/assets/7b330f9f-ec29-4dc9-94af-673bd0be0af7
+
 
 ## About the Project
 
